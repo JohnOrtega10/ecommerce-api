@@ -104,11 +104,10 @@ exports.getAllOrders = catchAsync(async (req, res, next) => {
 });
 
 exports.getOrderById = catchAsync(async (req, res, next) => {
-  const { currentUser } = req;
   const { id } = req.params;
 
   const order = await Order.findOne({
-    where: { userId: currentUser.id, id },
+    where: { id },
     include: [
       {
         model: Cart,
@@ -118,6 +117,10 @@ exports.getOrderById = catchAsync(async (req, res, next) => {
       }
     ]
   });
+
+  if (!order) {
+    return next(new AppError(404, 'Order not found with given id'));
+  }
 
   res.status(200).json({
     status: 'success',
